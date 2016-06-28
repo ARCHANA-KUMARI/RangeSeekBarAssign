@@ -95,6 +95,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     private int mTextSize;
     private int mDistanceToTop;
     private RectF mRect;
+    private RectF mUnCoveredRect;
 
     private boolean mSingleThumb;
     private boolean mAlwaysActive;
@@ -265,9 +266,9 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
         // To do for left
         mThumbHalfWidth = 0.5f * thumbImage.getWidth();
-        Log.i("Hello","mThumbHalWidth"+mThumbHalfWidth);
+       // Log.i("Hello","mThumbHalWidth"+mThumbHalfWidth);
         mThumbHalfHeight = 0.5f * thumbImage.getHeight();
-        Log.i("Hello"," mThumbHalfHeight"+mThumbHalfWidth);
+      //  Log.i("Hello"," mThumbHalfHeight"+mThumbHalfWidth);
 
         setValuePrimAndNumberType();
 
@@ -275,12 +276,14 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         mDistanceToTop = PixelUtil.dpToPx(context, DEFAULT_TEXT_DISTANCE_TO_TOP_IN_DP);
         mTextOffset = !mShowTextAboveThumbs ? 0 : this.mTextSize + PixelUtil.dpToPx(context,
                 DEFAULT_TEXT_DISTANCE_TO_BUTTON_IN_DP) + this.mDistanceToTop;
-        Log.i("Hello","mTextOffset is"+mTextOffset);
+      //  Log.i("Hello","mTextOffset is"+mTextOffset);
         mRect = new RectF(padding,
                 mTextOffset + mThumbHalfHeight - barHeight / 2,
                 getWidth() - padding,
                 mTextOffset + mThumbHalfHeight + barHeight / 2);
         Log.i("Hello","Rectanlge is"+mRect);
+        mUnCoveredRect =  new RectF();
+        Log.i("Hello","New Rectangle is"+mUnCoveredRect);
 
         // make RangeSeekBar focusable. This solves focus handling issues in case EditText widgets are being used along with the RangeSeekBar within ScrollViews.
         setFocusable(true);
@@ -441,7 +444,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      */
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        Log.i("Hello","onTouchEvent is called");
+     //   Log.i("Hello","onTouchEvent is called");
         if (!isEnabled()) {
             return false;
         }
@@ -453,7 +456,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         switch (action & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
-                Log.i("Hello","I am in MotionEvent.ACTION_DOWN");
+              //  Log.i("Hello","I am in MotionEvent.ACTION_DOWN");
                 // Remember where the motion event started
                 mActivePointerId = event.getPointerId(event.getPointerCount() - 1);
                 pointerIndex = event.findPointerIndex(mActivePointerId);
@@ -475,7 +478,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
                 break;
             case MotionEvent.ACTION_MOVE:
-                Log.i("Hello","I am in MotionEvent.ACTION_MOVE");
+             //   Log.i("Hello","I am in MotionEvent.ACTION_MOVE");
                 if (pressedThumb != null) {
 
                     if (mIsDragging) {
@@ -501,7 +504,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                Log.i("Hello","I am in MotionEvent.ACTION_UP");
+              //  Log.i("Hello","I am in MotionEvent.ACTION_UP");
                 if (mIsDragging) {
                     trackTouchEvent(event);
                     onStopTrackingTouch();
@@ -522,7 +525,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 }
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-                Log.i("Hello","I am in .ACTION_POINTER_DOWN");
+               // Log.i("Hello","I am in .ACTION_POINTER_DOWN");
             {
                 final int index = event.getPointerCount() - 1;
                 // final int index = ev.getActionIndex();
@@ -533,13 +536,13 @@ public class RangeSeekBar<T extends Number> extends ImageView {
                 break;
             }
             case MotionEvent.ACTION_POINTER_UP:
-                Log.i("Hello","I am in .MotionEvent.ACTION_POINTER_UP");
+           //     Log.i("Hello","I am in .MotionEvent.ACTION_POINTER_UP");
                 onSecondaryPointerUp(event);
                 invalidate();
             //    Log.i("Hello","No. Of invalidate() is called"+countInvalidate++);
                 break;
             case MotionEvent.ACTION_CANCEL:
-                Log.i("Hello","I am in . MotionEvent.ACTION_CANCEL");
+          //      Log.i("Hello","I am in . MotionEvent.ACTION_CANCEL");
                 if (mIsDragging) {
                     onStopTrackingTouch();
                     setPressed(false);
@@ -589,7 +592,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      * This is called when the user has started touching this widget.
      */
     void onStartTrackingTouch() {
-        Log.i("Hello","i AM IN onStartTrackingTouch()");
+    //    Log.i("Hello","i AM IN onStartTrackingTouch()");
      //  paint.setColor(mActiveColor);
         mIsDragging = true;
     }
@@ -627,17 +630,18 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     @Override
     protected synchronized void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-       Log.i("Hello","No of times onDraw() is called"+count);
+       //Log.i("Hello","No of times onDraw() is called"+count);
         count++;
         paint.setTextSize(mTextSize);
 
 
         // Initial color
         // for border
-        //paint.setStyle(Paint.Style.STROKE);
+     //   paint.setStyle(Paint.Style.FILL_AND_STROKE);
+      //  paint.setStyle(Paint.Style.FILL);
         paint.setColor(mActiveColor);
 
-      //  paint.setColor(Color.BLACK);
+
         paint.setAntiAlias(true);
         float minMaxLabelSize = 0;
 
@@ -662,13 +666,13 @@ public class RangeSeekBar<T extends Number> extends ImageView {
        // Log.i("Hello","mRect.Bottm"+mRect.bottom);
        // Log.i("Hello","mRect.Top"+mRect.top);
        canvas.drawRect(mRect, paint);
-
+        Log.i("Hello","Rect is in DEFAULT area"+mRect);
         boolean selectedValuesAreDefault = (getSelectedMinValue().equals(getAbsoluteMinValue()) &&
                 getSelectedMaxValue().equals(getAbsoluteMaxValue()));
         Log.i("Hello","selectedValuesAreDefault************"+selectedValuesAreDefault);
 
         int colorToUseForButtonsAndHighlightedLine = !mAlwaysActive && selectedValuesAreDefault ?
-                mActiveColor: // default values
+                mDefaultColor: // default values
                 mDefaultColor;   // non default, filter is active
          Log.i("Hello","Default color is********************"+mDefaultColor);
          Log.i("Hello","Active color is*********************"+mActiveColor);
@@ -682,9 +686,21 @@ public class RangeSeekBar<T extends Number> extends ImageView {
 
         paint.setColor(colorToUseForButtonsAndHighlightedLine);
        // paint.setStyle(Paint.Style.STROKE);
+
+       // paint.setStrokeWidth(3);
        // draw for selected area// draw black color for uncovered area
         canvas.drawRect(mRect, paint);
+        mUnCoveredRect.left = mRect.left;
+        mUnCoveredRect.bottom = mRect.bottom;
+        mUnCoveredRect.right = mRect.right;
+        mUnCoveredRect.top = mRect.top;
+        Paint paintNew = new Paint();
+        paintNew.setColor(getResources().getColor(R.color.colorAccent));
+        paintNew.setStyle(Paint.Style.STROKE);
+        paintNew.setStrokeWidth(5);
 
+        canvas.drawRect(mUnCoveredRect,paintNew);
+        Log.i("Hello","Rect is in active area"+mRect);
 
         // draw minimum thumb (& shadow if requested) if not a single thumb control
         if (!mSingleThumb) {
@@ -765,7 +781,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      * @param canvas      The canvas to draw upon.
      */
     private void drawThumb(float screenCoord, boolean pressed, Canvas canvas, boolean areSelectedValuesDefault) {
-        Log.i("Hello","ScreenCoord is"+screenCoord+"An");
+      //  Log.i("Hello","ScreenCoord is"+screenCoord+"An");
         Bitmap buttonToDraw;
         if (areSelectedValuesDefault) {
             buttonToDraw = thumbDisabledImage;
@@ -773,9 +789,12 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         } else {
             buttonToDraw = pressed ? thumbPressedImage : thumbImage;
         }
-        Log.i("Hello","mTextOffset in leftThumb is"+mTextOffset+"And Left is"+(screenCoord-mThumbHalfWidth));
-        canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
+     //   Log.i("Hello","mTextOffset in leftThumb is"+mTextOffset+"And Left is"+(screenCoord-mThumbHalfWidth));
+      /*  canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
                 mTextOffset,
+                paint);*/
+        canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
+                58,
                 paint);
 
     }
@@ -788,10 +807,10 @@ public class RangeSeekBar<T extends Number> extends ImageView {
         } else {
             buttonToDraw = pressed ?mRightThumbPressedBitmap :mRightThumbNormalBitmap ;
         }
-        Log.i("Hello","mTextOffset in rightThumb is"+mTextOffset+"And Left is"+(screenCoord-mThumbHalfWidth));
+     //   Log.i("Hello","mTextOffset in rightThumb is"+mTextOffset+"And Left is"+(screenCoord-mThumbHalfWidth));
         canvas.drawBitmap(buttonToDraw, screenCoord - mThumbHalfWidth,
-                60,
-                paint);
+               58,
+               paint);
 
     }
 
@@ -816,7 +835,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      * @return The pressed thumb or null if none has been touched.
      */
     private Thumb evalPressedThumb(float touchX) {
-        Log.i("Hello","I am in evalPressedThumb()");
+        Log.i("Hello","I am in evalPressedThumb()***************");
         Thumb result = null;
         boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
         boolean maxThumbPressed = isInThumbRange(touchX, normalizedMaxValue);
@@ -853,7 +872,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
     static int countInvalidate = 0;
     private void setNormalizedMinValue(double value) {
         normalizedMinValue = Math.max(0d, Math.min(1d, Math.min(value, normalizedMaxValue)));
-        Log.i("Hello","NormalisedMinValue is called"+normalizedMinValue);
+      //  Log.i("Hello","NormalisedMinValue is called"+normalizedMinValue);
         invalidate();
     //    Log.i("Hello","No. Of invalidate() is called"+countInvalidate);
      //   countInvalidate++;
@@ -869,7 +888,7 @@ public class RangeSeekBar<T extends Number> extends ImageView {
      */
     private void setNormalizedMaxValue(double value) {
         normalizedMaxValue = Math.max(0d, Math.min(1d, Math.max(value, normalizedMinValue)));
-        Log.i("Hello","normalizedMaxValue is called"+normalizedMaxValue);
+      //  Log.i("Hello","normalizedMaxValue is called"+normalizedMaxValue);
         invalidate();
       //  Log.i("Hello","No. Of invalidate() is called"+countInvalidate++);
     }
